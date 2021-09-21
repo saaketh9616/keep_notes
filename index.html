@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Keep</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        header {
+            height: 12vh;
+            background-color: #66FCF1;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: blueviolet;
+        }
+
+        #adding {
+            height: 12vh;
+            background-color: #c5c6c7;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        #adding button {
+            border: none;
+            padding: 10px;
+            margin-right: 5vw;
+            cursor: pointer;
+            background-color: slateblue;
+            color: white;
+            border-radius: 20px;
+        }
+
+        #add:hover {
+            transition: 1s;
+            transform: scale(1.2) rotate(360deg);
+            border: 2px solid red;
+            background-color: white;
+            color: slateblue;
+            box-shadow: 0px 0px 30px slateblue;
+        }
+
+        .book {
+            background-color: #fcf951ff;
+            width: 28vw;
+            height: 25vh;
+            margin: 2vh 0;
+            padding: 2px;
+        }
+
+        .upper {
+            display: flex;
+            justify-content: flex-end;
+            border: 0;
+            height: 20%;
+        }
+
+        .upper button {
+            cursor: pointer;
+            border: 0;
+            margin: 0 2%;
+            border-radius: 50%;
+            padding: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .upper button ion-icon {
+            font-size: 20px;
+        }
+
+        .book textarea {
+            resize: none;
+            width: 100%;
+            height: 80%;
+            background-color: transparent;
+            border: 0;
+        }
+
+        .book textarea:hover {
+            border: 2px solid red;
+        }
+
+        .hidd {
+            display: none;
+        }
+
+        #del {
+            background-color: red;
+            color: white;
+        }
+
+        #del:hover {
+            transition: .5s;
+            background-color: white;
+            color: red;
+        }
+
+        #edit {
+            background-color: #263571;
+            color: #feda14;
+        }
+
+        #edit:hover {
+            color: #263571;
+            background-color: #fff;
+            transition: .5s;
+        }
+
+        .thop {
+            width: 100vw;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            flex-direction: row;
+        }
+
+        .outer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main {
+            color: #422057ff;
+            height: 80%;
+            width: 100%;
+            overflow-y: scroll;
+            overflow-x: scroll;
+        }
+
+        body {
+            height: 100vh;
+        }
+
+        @media(max-width:700px) {
+            .upper {
+                height: 15%;
+            }
+
+            .upper button {
+                padding: 5px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .book {
+                width: 75vw;
+                height: 50vw;
+            }
+        }
+    </style>
+</head>
+
+<body oncontextmenu="return false">
+    <header>
+        <h1>Keep Notes</h1>
+    </header>
+    <section id="adding">
+        <button id="add">Add Note</button>
+    </section>
+    <div class="outer" oncontextmenu="return false">
+        <div class="thop">
+        </div>
+    </div>
+    <script>
+        const addbtn = document.getElementById('add');
+        const updateLocal = () => {
+            const textyp = document.querySelectorAll('textarea');
+            const arr = [];
+            textyp.forEach((book) => {
+                return arr.push(book.value);
+            });
+            localStorage.setItem('arr', JSON.stringify(arr));
+        };
+        const thops = document.querySelector('.thop');
+        const adddata = (text = '') => {
+            const divbook = document.createElement('div');
+            divbook.classList.add('book');
+            const alldata = `
+                <div class="upper">
+                    <button id="edit"><ion-icon name="create-outline"></ion-icon></button>
+                    <button id="del"><ion-icon name="trash-outline"></ion-icon></button>
+                </div> 
+                <div class="main ${text ? "" : "hidd"}"></div>
+                <textarea class="${text ? "hidd" : ""}"></textarea>
+            `;
+            divbook.insertAdjacentHTML('afterbegin', alldata);
+            const editbtn = divbook.querySelector('#edit');
+            const delbtn = divbook.querySelector('#del');
+            const maina = divbook.querySelector('.main');
+            const texty = divbook.querySelector('textarea');
+
+            delbtn.addEventListener('click', () => {
+                divbook.remove();
+                updateLocal();
+            });
+            texty.value = text;
+            maina.innerHTML = text;
+            editbtn.addEventListener('click', () => {
+                maina.classList.toggle('hidd');
+                texty.classList.toggle('hidd');
+            });
+
+            texty.addEventListener('change', (event) => {
+                const p = event.target.value;
+                maina.innerHTML = p;
+                maina.classList.toggle('hidd');
+                texty.classList.toggle('hidd');
+                updateLocal();
+            });
+            thops.insertAdjacentElement('beforeend', divbook);
+        };
+        const arr1 = JSON.parse(localStorage.getItem('arr'));
+        if (arr1) {
+            arr1.forEach((note) => {
+                adddata(note);
+            })
+        }
+        addbtn.addEventListener('click', () => {
+            adddata();
+        });
+        document.onkeydown = function (e) {
+            if (e.keyCode == 123) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                return false;
+            }
+        }
+    </script>
+</body>
+
+</html>
